@@ -3,13 +3,13 @@ package com.solution;
 public class ExpressionParseException extends Exception {
     public ExpressionParseException(String errorString) {
         super();
-        errorString_ = errorString;
+        mErrorString = errorString;
     }
 
     @Override
     public String toString() {
-        return errorString_;
+        return mErrorString;
     }
 
-    private String errorString_;
+    private String mErrorString;
 }

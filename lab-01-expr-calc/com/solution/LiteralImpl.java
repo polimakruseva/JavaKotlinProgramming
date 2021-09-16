@@ -2,15 +2,15 @@ package com.solution;
 
 public class LiteralImpl implements Literal {
     LiteralImpl(String literal) {
-        value_ = literal;
-        isVariable_ = !Character.isDigit(value_.charAt(0));
+        mValue = literal;
+        mIsVariable = !Character.isDigit(mValue.charAt(0));
     }
 
     @Override
     public double getValue() throws ExpressionParseException {
         double result = 0;
         try {
-            result = Double.parseDouble(value_);
+            result = Double.parseDouble(mValue);
         } catch (NumberFormatException exception) {
             ExceptionHandler handler = new ExceptionHandler();
             handler.handleException(TypeOfException.SYNTAXERROR);
@@ -20,38 +20,37 @@ public class LiteralImpl implements Literal {
 
     @Override
     public String getLiteral() {
-        return value_;
+        return mValue;
     }
 
     @Override
     public boolean isVariable() {
-        return isVariable_;
-    }
-
-    @Override
-    public void initializeVariable(String number) {
-        value_ = number;
-        isVariable_ = false;
+        return mIsVariable;
     }
 
     @Override
     public void setUnaryMinus() {
-        unaryMinus_ = !unaryMinus_;
-        ++numberOfMinuses_;
+        mUnaryMinus = !mUnaryMinus;
+        mUnarySigns += "-";
     }
 
     @Override
     public boolean isNegative() {
-        return unaryMinus_;
+        return mUnaryMinus;
     }
 
     @Override
-    public int getUnaryMinuses() {
-        return numberOfMinuses_;
+    public void setUnaryPlus() {
+        mUnarySigns += "+";
     }
 
-    private String value_;
-    private boolean isVariable_;
-    private boolean unaryMinus_ = false;
-    private int numberOfMinuses_ = 0;
+    @Override
+    public String getUnarySigns() {
+        return mUnarySigns;
+    }
+
+    private String mValue;
+    private boolean mIsVariable;
+    private boolean mUnaryMinus = false;
+    private String mUnarySigns = "";
 }

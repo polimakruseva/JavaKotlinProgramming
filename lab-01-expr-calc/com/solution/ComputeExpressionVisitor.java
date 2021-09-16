@@ -1,9 +1,12 @@
 package com.solution;
 
 import java.util.HashMap;
-import java.util.Scanner;
 
 public class ComputeExpressionVisitor implements ExpressionVisitor {
+    public ComputeExpressionVisitor(HashMap<String, String> variables) {
+        mVariables = variables;
+    }
+
     @Override
     public Object visitBinaryExpression(BinaryExpression expr) throws ExpressionParseException {
         switch (expr.getOperation()) {
@@ -31,23 +34,16 @@ public class ComputeExpressionVisitor implements ExpressionVisitor {
 
     @Override
     public Object visitLiteral(Literal expr) throws ExpressionParseException {
+        double result;
         if (expr.isVariable()) {
-            if (!variables_.containsKey(expr.getLiteral())) {
-                System.out.println("Enter value for '" + expr.getLiteral() + "'");
-                Scanner scanner =  new Scanner(System.in);
-                if (scanner.hasNextLine()) {
-                    String number = scanner.next();
-                    variables_.put(expr.getLiteral(), number);
-                    expr.initializeVariable(number);
-                }
-            } else {
-                expr.initializeVariable(variables_.get(expr.getLiteral()));
-            }
+            result = Double.parseDouble(mVariables.get(expr.getLiteral()));
+        } else {
+            result = expr.getValue();
         }
         if (expr.isNegative()) {
-            return -expr.getValue();
+            return -result;
         }
-        return expr.getValue();
+        return result;
     }
 
     @Override
@@ -58,5 +54,5 @@ public class ComputeExpressionVisitor implements ExpressionVisitor {
         return expr.getExpr().accept(this);
     }
 
-    private HashMap<String, String> variables_ = new HashMap<>();
+    private HashMap<String, String> mVariables;
 }

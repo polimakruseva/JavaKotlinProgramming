@@ -9,11 +9,8 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         if (scanner.hasNextLine()) {
             String string = scanner.nextLine();
-//            System.out.println("Your expression is: ");
-//            System.out.print(string);
 
             ExpressionTree tree = new ExpressionTree(string);
-//            System.out.println("did parse sth!");
             System.out.println("representation");
             System.out.println(tree.getTreeRepresentation());
 
@@ -22,6 +19,9 @@ public class Main {
 
             System.out.println("result:");
             System.out.println(tree.computeResult());
+
+            System.out.println("ToString representation:");
+            System.out.println(tree);
         }
     }
 }

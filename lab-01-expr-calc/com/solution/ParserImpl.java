@@ -12,18 +12,18 @@ enum TokenType {
 public class ParserImpl implements Parser {
     @Override
     public Expression parseExpression(String input) throws ExpressionParseException {
-        input_ = input;
-        currentIndex_ = 0;
+        mInput = input;
+        mCurrentIndex = 0;
         getToken();
 
-        if (token_.equals(endOfExpression)) {
-            handler.handleException(TypeOfException.NOEXPRESSION);
+        if (mToken.equals(mEndOfExpression)) {
+            mHandler.handleException(TypeOfException.NOEXPRESSION);
         }
 
         Expression result = addOrSubtract();
 
-        if (!token_.equals(endOfExpression)) {
-            handler.handleException(TypeOfException.SYNTAXERROR);
+        if (!mToken.equals(mEndOfExpression)) {
+            mHandler.handleException(TypeOfException.SYNTAXERROR);
         }
 
         return result;
@@ -31,7 +31,7 @@ public class ParserImpl implements Parser {
 
     private Expression addOrSubtract() throws ExpressionParseException {
         Expression left = multiplyOrDivide();
-        char operation = token_.charAt(0);
+        char operation = mToken.charAt(0);
         while (operation == '-' || operation == '+') {
             getToken();
             Expression right = multiplyOrDivide();
@@ -43,14 +43,14 @@ public class ParserImpl implements Parser {
                     return new BinaryExpressionImpl(left, right, BinOpKind.SUBTRACT);
                 }
             }
-            operation = token_.charAt(0);
+            operation = mToken.charAt(0);
         }
         return left;
     }
 
     private Expression multiplyOrDivide() throws ExpressionParseException {
         Expression left = unaryOperators();
-        char operation = token_.charAt(0);
+        char operation = mToken.charAt(0);
         while (operation == '*' || operation == '/') {
             getToken();
             Expression right = unaryOperators();
@@ -62,31 +62,33 @@ public class ParserImpl implements Parser {
                     return new BinaryExpressionImpl(left, right, BinOpKind.DIVIDE);
                 }
             }
-            operation = token_.charAt(0);
+            operation = mToken.charAt(0);
         }
         return left;
     }
 
     private Expression unaryOperators() throws ExpressionParseException {
         String operation = "";
-        if (tokenType_ == TokenType.DELIMITER && (Objects.equals(token_, "-")
-                || Objects.equals(token_, "+"))) {
-            operation = token_;
+        if (mTokenType == TokenType.DELIMITER && (Objects.equals(mToken, "-")
+                || Objects.equals(mToken, "+"))) {
+            operation = mToken;
             getToken();
         }
         Expression result = parenthesisExpression();
         if (operation.equals("-")) {
             result.setUnaryMinus();
+        } else if (operation.equals("+")) {
+            result.setUnaryPlus();
         }
         return result;
     }
 
     private Expression parenthesisExpression() throws ExpressionParseException {
-        if (token_.equals("(")) {
+        if (mToken.equals("(")) {
             getToken();
             Expression result = addOrSubtract();
-            if (!token_.equals(")")) {
-                handler.handleException(TypeOfException.UNBALANCEDPARENS);
+            if (!mToken.equals(")")) {
+                mHandler.handleException(TypeOfException.UNBALANCEDPARENS);
             }
             getToken();
             return new ParenthesisExpressionImpl(result);
@@ -95,54 +97,62 @@ public class ParserImpl implements Parser {
         }
     }
 
-    private Expression getLiteral() {
-        LiteralImpl result = new LiteralImpl(token_);
-        getToken();
-        return result;
+    private Expression getLiteral() throws ExpressionParseException {
+        if (Character.isLetter(mToken.charAt(0)) || Character.isDigit(mToken.charAt(0))) {
+            LiteralImpl result = new LiteralImpl(mToken);
+            getToken();
+            return result;
+        } else if (mToken.equals("+")|| mToken.equals("-")) {
+            return unaryOperators();
+        } else {
+            ExceptionHandler handler = new ExceptionHandler();
+            handler.handleException(TypeOfException.SYNTAXERROR);
+        }
+        return addOrSubtract();
     }
 
     private void getToken() {
-        tokenType_ = TokenType.NONE;
-        token_ = "";
+        mTokenType = TokenType.NONE;
+        mToken = "";
 
-        if(currentIndex_ == input_.length()) {
-            token_ = endOfExpression;
+        if(mCurrentIndex == mInput.length()) {
+            mToken = mEndOfExpression;
             return;
         }
 
-        while(currentIndex_ < input_.length() && Character.isWhitespace(input_.charAt(currentIndex_))) {
-            ++currentIndex_;
+        while(mCurrentIndex < mInput.length() && Character.isWhitespace(mInput.charAt(mCurrentIndex))) {
+            ++mCurrentIndex;
         }
 
-        if(currentIndex_ == input_.length()) {
-            token_ = endOfExpression;
+        if(mCurrentIndex == mInput.length()) {
+            mToken = mEndOfExpression;
             return;
         }
 
-        if(isDelim(input_.charAt(currentIndex_))) {
-            token_ += input_.charAt(currentIndex_);
-            ++currentIndex_;
-            tokenType_ = TokenType.DELIMITER;
-        } else if(Character.isLetter(input_.charAt(currentIndex_))) {
-            while(!isDelim(input_.charAt(currentIndex_))) {
-                token_ += input_.charAt(currentIndex_);
-                ++currentIndex_;
-                if(currentIndex_ >= input_.length()) {
+        if(isDelim(mInput.charAt(mCurrentIndex))) {
+            mToken += mInput.charAt(mCurrentIndex);
+            ++mCurrentIndex;
+            mTokenType = TokenType.DELIMITER;
+        } else if(Character.isLetter(mInput.charAt(mCurrentIndex))) {
+            while(!isDelim(mInput.charAt(mCurrentIndex))) {
+                mToken += mInput.charAt(mCurrentIndex);
+                ++mCurrentIndex;
+                if(mCurrentIndex >= mInput.length()) {
                     break;
                 }
             }
-            tokenType_ = TokenType.VARIABLE;
-        } else if (Character.isDigit(input_.charAt(currentIndex_))) {
-            while(!isDelim(input_.charAt(currentIndex_))){
-                token_ += input_.charAt(currentIndex_);
-                ++currentIndex_;
-                if(currentIndex_ >= input_.length()) {
+            mTokenType = TokenType.VARIABLE;
+        } else if (Character.isDigit(mInput.charAt(mCurrentIndex))) {
+            while(!isDelim(mInput.charAt(mCurrentIndex))){
+                mToken += mInput.charAt(mCurrentIndex);
+                ++mCurrentIndex;
+                if(mCurrentIndex >= mInput.length()) {
                     break;
                 }
             }
-            tokenType_ = TokenType.NUMBER;
+            mTokenType = TokenType.NUMBER;
         } else {
-            token_ = endOfExpression;
+            mToken = mEndOfExpression;
         }
     }
 
@@ -150,11 +160,11 @@ public class ParserImpl implements Parser {
         return (" +-/*()".indexOf(charAt)) != -1;
     }
 
-    private String input_;
-    private int currentIndex_;
-    private String token_;
-    TokenType tokenType_;
-    private final ExceptionHandler handler = new ExceptionHandler();
+    private String mInput;
+    private int mCurrentIndex;
+    private String mToken;
+    TokenType mTokenType;
+    private final ExceptionHandler mHandler = new ExceptionHandler();
 
-    final String endOfExpression = "\0";
+    private final String mEndOfExpression = "\0";
 }

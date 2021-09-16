@@ -1,23 +1,37 @@
 package com.solution;
 
+import java.util.HashMap;
+
 public class ExpressionTree {
     ExpressionTree(String expression) throws ExpressionParseException {
         ParserImpl parser = new ParserImpl();
-        treeTop_ = parser.parseExpression(expression);
+        mTreeTop = parser.parseExpression(expression);
     }
 
     String getTreeRepresentation() throws ExpressionParseException {
-        return (String) treeTop_.accept(DebugRepresentationExpressionVisitor.INSTANCE);
+        return (String) mTreeTop.accept(DebugRepresentationExpressionVisitor.INSTANCE);
     }
 
     double computeResult() throws ExpressionParseException {
-        ComputeExpressionVisitor visitor = new ComputeExpressionVisitor();
-        return (double) treeTop_.accept(visitor);
+        InitializeVariablesVisitor varVisitor = new InitializeVariablesVisitor();
+        HashMap<String, String> res = (HashMap<String, String>) mTreeTop.accept(varVisitor);
+        ComputeExpressionVisitor visitor = new ComputeExpressionVisitor(res);
+        return (double) mTreeTop.accept(visitor);
     }
 
     int getTreeDepth() throws ExpressionParseException {
-        return (Integer) treeTop_.accept(GetTreeDepthVisitor.INSTANCE);
+        return (Integer) mTreeTop.accept(GetTreeDepthVisitor.INSTANCE);
     }
 
-    private Expression treeTop_;
+    @Override
+    public String toString() {
+        try {
+            return (String) mTreeTop.accept((ExpressionVisitor) ToStringVisitor.INSTANCE);
+        } catch (ExpressionParseException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private Expression mTreeTop;
 }

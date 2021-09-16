@@ -38,13 +38,11 @@ public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
     @Override
     public Object visitLiteral(Literal expr) {
         String result = "";
+        result += getStringWithUnarySigns(expr);
         if (expr.isVariable()) {
             result += "var[";
         } else {
             result += "'";
-        }
-        if (expr.getUnaryMinuses() != 0) {
-            result += getStringWithMinuses(expr);
         }
         result += expr.getLiteral();
         if (expr.isVariable()) {
@@ -58,16 +56,19 @@ public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
     @Override
     public Object visitParenthesisExpression(ParenthesisExpression expr) throws ExpressionParseException {
         String result = "";
-        if (expr.getUnaryMinuses() != 0) {
-            result += getStringWithMinuses(expr);
-        }
+        result += getStringWithUnarySigns(expr);
         return result + "paren-expr(" + expr.getExpr().accept(this) + ")";
     }
 
-    private String getStringWithMinuses(Expression expr) {
+    private String getStringWithUnarySigns(Expression expr) {
+        String unarySigns = expr.getUnarySigns();
         String result = "";
-        for (int i = 0; i < expr.getUnaryMinuses(); ++i) {
-            result += "unary-min ";
+        for (int i = 0; i < unarySigns.length(); ++i) {
+            if (unarySigns.charAt(i) == '+') {
+                result += "unary-plus ";
+            } else {
+                result += "unary-min ";
+            }
         }
         return result;
     }

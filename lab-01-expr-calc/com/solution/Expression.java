@@ -3,7 +3,8 @@ package com.solution;
 public interface Expression {
     void setUnaryMinus();
     boolean isNegative();
-    int getUnaryMinuses();
+    void setUnaryPlus();
+    String getUnarySigns();
 
     Object accept(ExpressionVisitor visitor) throws ExpressionParseException;
 }

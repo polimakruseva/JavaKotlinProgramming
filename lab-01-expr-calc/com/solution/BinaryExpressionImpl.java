@@ -2,45 +2,50 @@ package com.solution;
 
 public class BinaryExpressionImpl implements BinaryExpression {
     BinaryExpressionImpl(Expression left, Expression right, BinOpKind operation) {
-        left_ = left;
-        right_ = right;
-        operation_ = operation;
+        mLeft = left;
+        mRight = right;
+        mOperation = operation;
     }
 
     @Override
     public Expression getLeft() {
-        return left_;
+        return mLeft;
     }
 
     @Override
     public Expression getRight() {
-        return right_;
+        return mRight;
     }
 
     @Override
     public BinOpKind getOperation() {
-        return operation_;
+        return mOperation;
     }
 
     @Override
     public void setUnaryMinus() {
-        unaryMinus_ = !unaryMinus_;
-        ++numberOfMinuses_;
+        mUnaryMinus = !mUnaryMinus;
+        mUnarySigns += "-";
     }
 
     @Override
     public boolean isNegative() {
-        return unaryMinus_;
+        return mUnaryMinus;
     }
 
     @Override
-    public int getUnaryMinuses() {
-        return numberOfMinuses_;
+    public void setUnaryPlus() {
+        mUnarySigns += "+";
     }
 
-    private Expression left_;
-    private Expression right_;
-    private BinOpKind operation_;
-    private boolean unaryMinus_ = false;
-    private int numberOfMinuses_ = 0;
+    @Override
+    public String getUnarySigns() {
+        return mUnarySigns;
+    }
+
+    private Expression mLeft;
+    private Expression mRight;
+    private BinOpKind mOperation;
+    private boolean mUnaryMinus = false;
+    private String mUnarySigns = "";
 }

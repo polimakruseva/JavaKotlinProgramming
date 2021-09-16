@@ -2,31 +2,36 @@ package com.solution;
 
 public class ParenthesisExpressionImpl implements ParenthesisExpression {
     ParenthesisExpressionImpl(Expression expression) {
-        innerExpr_ = expression;
+        mInnerExpr = expression;
     }
 
     @Override
     public Expression getExpr() {
-        return innerExpr_;
+        return mInnerExpr;
     }
 
     @Override
     public void setUnaryMinus() {
-        unaryMinus_ = !unaryMinus_;
-        ++numberOfMinuses_;
+        mUnaryMinus = !mUnaryMinus;
+        mUnarySigns += "-";
     }
 
     @Override
     public boolean isNegative() {
-        return unaryMinus_;
+        return mUnaryMinus;
     }
 
     @Override
-    public int getUnaryMinuses() {
-        return numberOfMinuses_;
+    public void setUnaryPlus() {
+        mUnarySigns += "+";
     }
 
-    private Expression innerExpr_;
-    private boolean unaryMinus_ = false;
-    private int numberOfMinuses_ = 0;
+    @Override
+    public String getUnarySigns() {
+        return mUnarySigns;
+    }
+
+    private Expression mInnerExpr;
+    private boolean mUnaryMinus = false;
+    private String mUnarySigns = "";
 }
