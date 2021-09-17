@@ -1,13 +1,8 @@
 package com.solution;
 
-public class ParenthesisExpressionImpl implements ParenthesisExpression {
-    ParenthesisExpressionImpl(Expression expression) {
-        mInnerExpr = expression;
-    }
-
-    @Override
-    public Expression getExpr() {
-        return mInnerExpr;
+public class VariableImpl implements Variable {
+    public VariableImpl(String name) {
+        mName = name;
     }
 
     @Override
@@ -31,7 +26,12 @@ public class ParenthesisExpressionImpl implements ParenthesisExpression {
         return new StringBuilder(mUnarySigns).reverse().toString();
     }
 
-    private Expression mInnerExpr;
+    private String mName;
     private boolean mUnaryMinus = false;
     private String mUnarySigns = "";
+
+    @Override
+    public String getVariable() {
+        return mName;
+    }
 }

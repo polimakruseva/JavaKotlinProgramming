@@ -36,4 +36,9 @@ public class ToStringVisitor implements ExpressionVisitor {
     public Object visitParenthesisExpression(ParenthesisExpression expr) throws ExpressionParseException {
         return expr.getUnarySigns() + "(" + expr.getExpr().accept(this) + ")";
     }
+
+    @Override
+    public Object visitVariable(Variable expr) {
+        return expr.getUnarySigns() + expr.getVariable();
+    }
 }

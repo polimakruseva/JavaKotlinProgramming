@@ -1,11 +1,28 @@
 package com.solution;
 
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class ExpressionTree {
     ExpressionTree(String expression) throws ExpressionParseException {
         ParserImpl parser = new ParserImpl();
-        mTreeTop = parser.parseExpression(expression);
+        try {
+            mTreeTop = parser.parseExpression(expression);
+        } catch (ExpressionParseException exception) {
+            if (exception.toString().equals("Syntax error") || exception.toString().equals("No closing parenthesis")
+            || exception.toString().equals("No expression was entered")) {
+                System.out.println(exception + ". Please try again");
+                Scanner scanner = new Scanner(System.in);
+                if (scanner.hasNextLine()) {
+                    String newExpression = scanner.nextLine();
+                    mTreeTop = parser.parseExpression(newExpression);
+                } else {
+                    throw new ExpressionParseException("No expression was entered");
+                }
+            } else {
+                throw exception;
+            }
+        }
     }
 
     String getTreeRepresentation() throws ExpressionParseException {

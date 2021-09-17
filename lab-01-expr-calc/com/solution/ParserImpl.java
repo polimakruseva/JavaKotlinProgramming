@@ -98,20 +98,23 @@ public class ParserImpl implements Parser {
     }
 
     private Expression getLiteral() throws ExpressionParseException {
-        if (Character.isLetter(mToken.charAt(0)) || Character.isDigit(mToken.charAt(0))) {
+        if (mTokenType == TokenType.NUMBER) {
             LiteralImpl result = new LiteralImpl(mToken);
+            getToken();
+            return result;
+        } else if (mTokenType == TokenType.VARIABLE) {
+            VariableImpl result = new VariableImpl(mToken);
             getToken();
             return result;
         } else if (mToken.equals("+")|| mToken.equals("-")) {
             return unaryOperators();
-        } else {
-            ExceptionHandler handler = new ExceptionHandler();
-            handler.handleException(TypeOfException.SYNTAXERROR);
+        } else if (mTokenType == TokenType.NONE) {
+            mHandler.handleException(TypeOfException.SYNTAXERROR);
         }
         return addOrSubtract();
     }
 
-    private void getToken() {
+    private void getToken() throws ExpressionParseException {
         mTokenType = TokenType.NONE;
         mToken = "";
 
@@ -151,6 +154,8 @@ public class ParserImpl implements Parser {
                 }
             }
             mTokenType = TokenType.NUMBER;
+        } else if (mCurrentIndex < mInput.length()) {
+            mHandler.handleException(TypeOfException.SYNTAXERROR);
         } else {
             mToken = mEndOfExpression;
         }

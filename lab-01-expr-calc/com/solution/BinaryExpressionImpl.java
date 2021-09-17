@@ -40,7 +40,7 @@ public class BinaryExpressionImpl implements BinaryExpression {
 
     @Override
     public String getUnarySigns() {
-        return mUnarySigns;
+        return new StringBuilder(mUnarySigns).reverse().toString();
     }
 
     private Expression mLeft;

@@ -19,4 +19,9 @@ public class GetTreeDepthVisitor implements ExpressionVisitor {
     public Object visitParenthesisExpression(ParenthesisExpression expr) throws ExpressionParseException {
         return 1 + (Integer) expr.getExpr().accept(this);
     }
+
+    @Override
+    public Object visitVariable(Variable expr) {
+        return 1;
+    }
 }

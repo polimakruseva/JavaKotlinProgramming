@@ -3,7 +3,6 @@ package com.solution;
 public class LiteralImpl implements Literal {
     LiteralImpl(String literal) {
         mValue = literal;
-        mIsVariable = !Character.isDigit(mValue.charAt(0));
     }
 
     @Override
@@ -24,11 +23,6 @@ public class LiteralImpl implements Literal {
     }
 
     @Override
-    public boolean isVariable() {
-        return mIsVariable;
-    }
-
-    @Override
     public void setUnaryMinus() {
         mUnaryMinus = !mUnaryMinus;
         mUnarySigns += "-";
@@ -46,11 +40,10 @@ public class LiteralImpl implements Literal {
 
     @Override
     public String getUnarySigns() {
-        return mUnarySigns;
+        return new StringBuilder(mUnarySigns).reverse().toString();
     }
 
     private String mValue;
-    private boolean mIsVariable;
     private boolean mUnaryMinus = false;
     private String mUnarySigns = "";
 }

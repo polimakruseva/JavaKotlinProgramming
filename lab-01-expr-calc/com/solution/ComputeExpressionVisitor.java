@@ -34,12 +34,7 @@ public class ComputeExpressionVisitor implements ExpressionVisitor {
 
     @Override
     public Object visitLiteral(Literal expr) throws ExpressionParseException {
-        double result;
-        if (expr.isVariable()) {
-            result = Double.parseDouble(mVariables.get(expr.getLiteral()));
-        } else {
-            result = expr.getValue();
-        }
+        double result = expr.getValue();
         if (expr.isNegative()) {
             return -result;
         }
@@ -52,6 +47,15 @@ public class ComputeExpressionVisitor implements ExpressionVisitor {
             return -(Double) expr.getExpr().accept(this);
         }
         return expr.getExpr().accept(this);
+    }
+
+    @Override
+    public Object visitVariable(Variable expr) {
+        Double result = Double.parseDouble(mVariables.get(expr.getVariable()));
+        if (expr.isNegative()) {
+            return -result;
+        }
+        return result;
     }
 
     private HashMap<String, String> mVariables;

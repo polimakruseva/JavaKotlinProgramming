@@ -11,24 +11,29 @@ public class InitializeVariablesVisitor implements ExpressionVisitor {
     }
 
     @Override
-    public Object visitLiteral(Literal expr) throws ExpressionParseException {
-        if (expr.isVariable() && !mVariables.containsKey(expr.getLiteral())) {
-            System.out.println("Enter value for '" + expr.getLiteral() + "'");
-            Scanner scanner = new Scanner(System.in);
-            if (scanner.hasNextLine()) {
-                String number = scanner.next();
-                mVariables.put(expr.getLiteral(), number);
-            } else {
-                ExceptionHandler handler = new ExceptionHandler();
-                handler.handleException(TypeOfException.NOEXPRESSION);
-            }
-        }
+    public Object visitLiteral(Literal expr) {
         return mVariables;
     }
 
     @Override
     public Object visitParenthesisExpression(ParenthesisExpression expr) throws ExpressionParseException {
         return expr.getExpr().accept(this);
+    }
+
+    @Override
+    public Object visitVariable(Variable expr) throws ExpressionParseException {
+        if (!mVariables.containsKey(expr.getVariable())) {
+            System.out.println("Enter value for '" + expr.getVariable() + "'");
+            Scanner scanner = new Scanner(System.in);
+            if (scanner.hasNextLine()) {
+                String number = scanner.next();
+                mVariables.put(expr.getVariable(), number);
+            } else {
+                ExceptionHandler handler = new ExceptionHandler();
+                handler.handleException(TypeOfException.NOEXPRESSION);
+            }
+        }
+        return mVariables;
     }
 
     private HashMap<String, String> mVariables = new HashMap<>();

@@ -37,20 +37,7 @@ public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
 
     @Override
     public Object visitLiteral(Literal expr) {
-        String result = "";
-        result += getStringWithUnarySigns(expr);
-        if (expr.isVariable()) {
-            result += "var[";
-        } else {
-            result += "'";
-        }
-        result += expr.getLiteral();
-        if (expr.isVariable()) {
-            result += "]";
-        } else {
-            result += "'";
-        }
-        return result;
+        return getStringWithUnarySigns(expr) + "'" + expr.getLiteral() + "'";
     }
 
     @Override
@@ -58,6 +45,11 @@ public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
         String result = "";
         result += getStringWithUnarySigns(expr);
         return result + "paren-expr(" + expr.getExpr().accept(this) + ")";
+    }
+
+    @Override
+    public Object visitVariable(Variable expr) {
+        return getStringWithUnarySigns(expr) + "var[" + expr.getVariable() + "]";
     }
 
     private String getStringWithUnarySigns(Expression expr) {
