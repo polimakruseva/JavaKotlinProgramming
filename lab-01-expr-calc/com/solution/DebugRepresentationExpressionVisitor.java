@@ -23,7 +23,7 @@ public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
                 break;
             }
             case DIVIDE: {
-                result += "div";
+                result += "div(";
                 break;
             }
             default: {

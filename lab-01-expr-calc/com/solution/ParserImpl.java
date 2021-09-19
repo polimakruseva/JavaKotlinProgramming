@@ -23,6 +23,8 @@ public class ParserImpl implements Parser {
         Expression result = addOrSubtract();
 
         if (!mToken.equals(mEndOfExpression)) {
+            System.out.println("token " + mToken);
+            System.out.println(input.substring(mCurrentIndex));
             mHandler.handleException(TypeOfException.SYNTAXERROR);
         }
 
@@ -37,10 +39,12 @@ public class ParserImpl implements Parser {
             Expression right = multiplyOrDivide();
             switch (operation) {
                 case '+': {
-                    return new BinaryExpressionImpl(left, right, BinOpKind.ADD);
+                    left = new BinaryExpressionImpl(left, right, BinOpKind.ADD);
+                    break;
                 }
                 case '-': {
-                    return new BinaryExpressionImpl(left, right, BinOpKind.SUBTRACT);
+                    left = new BinaryExpressionImpl(left, right, BinOpKind.SUBTRACT);
+                    break;
                 }
             }
             operation = mToken.charAt(0);
@@ -56,10 +60,12 @@ public class ParserImpl implements Parser {
             Expression right = unaryOperators();
             switch (operation) {
                 case '*': {
-                    return new BinaryExpressionImpl(left, right, BinOpKind.MULTIPLY);
+                    left = new BinaryExpressionImpl(left, right, BinOpKind.MULTIPLY);
+                    break;
                 }
                 case '/': {
-                    return new BinaryExpressionImpl(left, right, BinOpKind.DIVIDE);
+                    left = new BinaryExpressionImpl(left, right, BinOpKind.DIVIDE);
+                    break;
                 }
             }
             operation = mToken.charAt(0);

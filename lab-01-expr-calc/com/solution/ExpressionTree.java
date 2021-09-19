@@ -25,6 +25,10 @@ public class ExpressionTree {
         }
     }
 
+    ExpressionTree(Expression treeTop) {
+        mTreeTop = treeTop;
+    }
+
     String getTreeRepresentation() throws ExpressionParseException {
         return (String) mTreeTop.accept(DebugRepresentationExpressionVisitor.INSTANCE);
     }
