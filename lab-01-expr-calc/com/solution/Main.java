@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) throws ExpressionParseException {
         ArrayList<String> enteredExpressions = new ArrayList<>(Arrays.asList("(2 + x)   * x - y",
-                "((78 / 56 - 6) +  mem ) * foo", "--6", "-(   - 7)", "+++ - 9"));
+                "((78 / 56 - 6) +  mem ) * foo", "--6", "-(   - 7)", "+++ - 9", "2 *   3 +7-1 - 10/2"));
         ArrayList<String> toStringExpr = new ArrayList<>(Arrays.asList("(2 + x) * x - y", "((78 / 56 - 6) + mem) * foo",
                 "--6", "-(-7)", "+++-9"));
         ArrayList<ExpressionTree> trees = new ArrayList<>();
@@ -89,6 +89,20 @@ public class Main {
         if (computeTree2.computeResult() != 30.) {
             isWorking = false;
             System.out.println("Wrong result, expected: 30, actual: " + computeTree.computeResult());
+        }
+
+        //2 * 3 + 7 - 1 - 10 / 2
+        ExpressionTree computeTree3 = new ExpressionTree(new BinaryExpressionImpl(new
+                BinaryExpressionImpl(new LiteralImpl("2"), new LiteralImpl("3"), BinOpKind.MULTIPLY), new
+                BinaryExpressionImpl(new BinaryExpressionImpl(new LiteralImpl("7"), new LiteralImpl("1"),
+                BinOpKind.SUBTRACT), new BinaryExpressionImpl(new LiteralImpl("10"), new LiteralImpl("2"),
+                BinOpKind.DIVIDE), BinOpKind.SUBTRACT), BinOpKind.ADD));
+        if (!computeTree3.toString().equals("2 * 3 + 7 - 1 - 10 / 2")) {
+            System.out.println("Wrong expression structure");
+        }
+        if (computeTree3.computeResult() != 7.) {
+            isWorking = false;
+            System.out.println("Wrong result, expected: 7, actual: " + computeTree.computeResult());
         }
 
         ArrayList<String> computeExpr = new ArrayList<>(Arrays.asList("(((27 - 8) + (-7) / 2) - 71) * 2 * (-1)", "--9",

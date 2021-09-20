@@ -43,7 +43,7 @@ public class LiteralImpl implements Literal {
         return new StringBuilder(mUnarySigns).reverse().toString();
     }
 
-    private String mValue;
+    private final String mValue;
     private boolean mUnaryMinus = false;
     private String mUnarySigns = "";
 }

@@ -31,7 +31,7 @@ public class ParenthesisExpressionImpl implements ParenthesisExpression {
         return new StringBuilder(mUnarySigns).reverse().toString();
     }
 
-    private Expression mInnerExpr;
+    private final Expression mInnerExpr;
     private boolean mUnaryMinus = false;
     private String mUnarySigns = "";
 }

@@ -58,5 +58,5 @@ public class ComputeExpressionVisitor implements ExpressionVisitor {
         return result;
     }
 
-    private HashMap<String, String> mVariables;
+    private final HashMap<String, String> mVariables;
 }

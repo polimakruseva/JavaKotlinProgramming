@@ -26,7 +26,7 @@ public class VariableImpl implements Variable {
         return new StringBuilder(mUnarySigns).reverse().toString();
     }
 
-    private String mName;
+    private final String mName;
     private boolean mUnaryMinus = false;
     private String mUnarySigns = "";
 

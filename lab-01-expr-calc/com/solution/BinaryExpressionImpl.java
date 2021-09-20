@@ -43,9 +43,9 @@ public class BinaryExpressionImpl implements BinaryExpression {
         return new StringBuilder(mUnarySigns).reverse().toString();
     }
 
-    private Expression mLeft;
-    private Expression mRight;
-    private BinOpKind mOperation;
+    private final Expression mLeft;
+    private final Expression mRight;
+    private final BinOpKind mOperation;
     private boolean mUnaryMinus = false;
     private String mUnarySigns = "";
 }

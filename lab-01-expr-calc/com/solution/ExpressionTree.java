@@ -34,10 +34,8 @@ public class ExpressionTree {
     }
 
     double computeResult() throws ExpressionParseException {
-        InitializeVariablesVisitor varVisitor = new InitializeVariablesVisitor();
-        HashMap<String, String> res = (HashMap<String, String>) mTreeTop.accept(varVisitor);
-        ComputeExpressionVisitor visitor = new ComputeExpressionVisitor(res);
-        return (double) mTreeTop.accept(visitor);
+        HashMap<String, String> res = (HashMap<String, String>) mTreeTop.accept(new InitializeVariablesVisitor());
+        return (double) mTreeTop.accept(new ComputeExpressionVisitor(res));
     }
 
     int getTreeDepth() throws ExpressionParseException {

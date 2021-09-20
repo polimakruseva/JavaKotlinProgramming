@@ -11,5 +11,5 @@ public class ExpressionParseException extends Exception {
         return mErrorString;
     }
 
-    private String mErrorString;
+    private final String mErrorString;
 }
