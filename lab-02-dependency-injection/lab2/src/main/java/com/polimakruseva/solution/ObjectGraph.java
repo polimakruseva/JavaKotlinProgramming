@@ -5,7 +5,9 @@ public interface ObjectGraph {
     Object getCreatedSingleton(String name);
     void addCreatedSingleton(String className, Object object);
     ServiceRegistrationImpl getRegisteredService(String name);
+    void addObjectNode(ObjectNode node);
+    ObjectNode getObjectNode(String requiredNode);
 
-    boolean isRegistered(Class<?> service);
+    boolean isRegistered(String name);
     boolean isCreated(String name);
 }

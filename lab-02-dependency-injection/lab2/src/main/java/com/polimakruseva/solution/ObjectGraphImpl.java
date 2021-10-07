@@ -1,7 +1,6 @@
 package com.polimakruseva.solution;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ObjectGraphImpl implements ObjectGraph {
     @Override
@@ -27,8 +26,18 @@ public class ObjectGraphImpl implements ObjectGraph {
     }
 
     @Override
-    public boolean isRegistered(Class<?> service) {
-        return registeredClasses.containsKey(service.getTypeName());
+    public void addObjectNode(ObjectNode node) {
+        objectGraph.add(node);
+    }
+
+    @Override
+    public ObjectNode getObjectNode(String requiredNode) {
+        return findObjectNode(requiredNode, objectGraph);
+    }
+
+    @Override
+    public boolean isRegistered(String name) {
+        return registeredClasses.containsKey(name);
     }
 
     @Override
@@ -36,6 +45,21 @@ public class ObjectGraphImpl implements ObjectGraph {
         return createdSingletons.containsKey(name);
     }
 
+    private ObjectNode findObjectNode(String requiredNode, ArrayList<ObjectNode> parameters) {
+        for (ObjectNode parameter : parameters) {
+            if (parameter.getName().equals(requiredNode)) {
+                return parameter;
+            } else {
+                ObjectNode result = findObjectNode(requiredNode, parameter.getParameters());
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+        return null;
+    }
+
     private final Map<String, ServiceRegistrationImpl> registeredClasses = new HashMap<>();
     private final Map<String, Object> createdSingletons = new HashMap<>();
+    private final ArrayList<ObjectNode> objectGraph = new ArrayList<>();
 }
