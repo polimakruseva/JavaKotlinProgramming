@@ -2,8 +2,6 @@ package com.polimakruseva.solution;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 public class ObjectNodeImpl implements ObjectNode {
     public ObjectNodeImpl(String name, ArrayList<ObjectNode> parameters, Constructor<?> constructor) {

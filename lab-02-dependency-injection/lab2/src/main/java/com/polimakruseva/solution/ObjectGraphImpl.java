@@ -4,45 +4,43 @@ import java.util.*;
 
 public class ObjectGraphImpl implements ObjectGraph {
     @Override
-    public void addRegisteredService(String name, ServiceRegistrationImpl service) {
-        if (!registeredClasses.containsKey(name)) {
-            registeredClasses.put(name, service);
-        }
+    public void addRegisteredService(String name, TypeOfService typeOfService) {
+        mRegisteredClasses.put(name, typeOfService);
     }
 
     @Override
     public Object getCreatedSingleton(String name) {
-        return createdSingletons.get(name);
+        return mCreatedSingletons.get(name);
     }
 
     @Override
     public void addCreatedSingleton(String className, Object object) {
-        createdSingletons.put(className, object);
+        mCreatedSingletons.put(className, object);
     }
 
     @Override
-    public ServiceRegistrationImpl getRegisteredService(String name) {
-        return registeredClasses.get(name);
+    public TypeOfService getTypeOfService(String name) {
+        return mRegisteredClasses.get(name);
     }
 
     @Override
     public void addObjectNode(ObjectNode node) {
-        objectGraph.add(node);
+        mObjectGraph.add(node);
     }
 
     @Override
     public ObjectNode getObjectNode(String requiredNode) {
-        return findObjectNode(requiredNode, objectGraph);
+        return findObjectNode(requiredNode, mObjectGraph);
     }
 
     @Override
     public boolean isRegistered(String name) {
-        return registeredClasses.containsKey(name);
+        return mRegisteredClasses.containsKey(name);
     }
 
     @Override
     public boolean isCreated(String name) {
-        return createdSingletons.containsKey(name);
+        return mCreatedSingletons.containsKey(name);
     }
 
     private ObjectNode findObjectNode(String requiredNode, ArrayList<ObjectNode> parameters) {
@@ -59,7 +57,7 @@ public class ObjectGraphImpl implements ObjectGraph {
         return null;
     }
 
-    private final Map<String, ServiceRegistrationImpl> registeredClasses = new HashMap<>();
-    private final Map<String, Object> createdSingletons = new HashMap<>();
-    private final ArrayList<ObjectNode> objectGraph = new ArrayList<>();
+    private final Map<String, TypeOfService> mRegisteredClasses = new HashMap<>();
+    private final Map<String, Object> mCreatedSingletons = new HashMap<>();
+    private final ArrayList<ObjectNode> mObjectGraph = new ArrayList<>();
 }

@@ -13,22 +13,23 @@ import java.util.List;
 public class DependenciesInjectorImpl implements DependenciesInjector {
     @Override
     public void register(Class<?> service) throws Exception {
-        if (isRegistrationComplete) {
+        if (mIsRegistrationComplete) {
             throw new RuntimeException("Registration is already complete.");
         }
         if (Modifier.isInterface(service.getModifiers())) {
             throw new Exception("You can't register interface " + service.getTypeName() + " without implementation.");
         }
         if (Modifier.isAbstract(service.getModifiers())) {
-            throw new Exception("You can't register an abstract class" + service.getTypeName() + ".");
+            throw new Exception("You can't register an abstract class " + service.getTypeName() + ".");
         }
-        ObjectNode node = getObjectNodeForRegistration(service, service.getTypeName(), new HashSet<>());
-        objectGraph.addObjectNode(node);
+        ObjectNode node = getObjectNodeForRegistration(service, service.getTypeName(), new HashSet<>(),
+                service.getTypeName());
+        mObjectGraph.addObjectNode(node);
     }
 
     @Override
     public <T> void register(Class<T> baseClass, Class<? extends T> subClass) throws Exception {
-        if (isRegistrationComplete) {
+        if (mIsRegistrationComplete) {
             throw new RuntimeException("Registration is already complete.");
         }
         if (!Modifier.isInterface(baseClass.getModifiers())) {
@@ -37,40 +38,41 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
         if (Modifier.isInterface(subClass.getModifiers()) || Modifier.isAbstract(subClass.getModifiers())) {
             throw new Exception("Second class should be an implementation of first, can't be abstract or interface.");
         }
-        if (objectGraph.isRegistered(baseClass.getTypeName())) {
+        if (mObjectGraph.isRegistered(baseClass.getTypeName())) {
             throw new Exception("Attempt to register another class that implements Interface when Interface is already " +
                     "registered.");
         }
-        ObjectNode node = getObjectNodeForRegistration(subClass, baseClass.getTypeName(), new HashSet<>());
-        objectGraph.addObjectNode(node);
+        ObjectNode node = getObjectNodeForRegistration(subClass, baseClass.getTypeName(), new HashSet<>(),
+                baseClass.getTypeName());
+        mObjectGraph.addObjectNode(node);
     }
 
     @Override
     public Object resolve(Class<?> service) throws Exception {
-        if (!objectGraph.isRegistered(service.getTypeName())) {
+        if (!mObjectGraph.isRegistered(service.getTypeName())) {
             throw new Exception("Required service is not registered.");
         }
-        ObjectNode node = objectGraph.getObjectNode(service.getTypeName());
+        ObjectNode node = mObjectGraph.getObjectNode(service.getTypeName());
         return getObject(node);
     }
 
     @Override
     public void completeRegistration() {
-        isRegistrationComplete = true;
+        mIsRegistrationComplete = true;
     }
 
     private Object getObject(ObjectNode node) throws InvocationTargetException,
             InstantiationException, IllegalAccessException {
         String requestedService = node.getName();
-        ServiceRegistrationImpl registeredService = objectGraph.getRegisteredService(requestedService);
-        if (registeredService.getTypeOfService() == TypeOfService.SINGLETON && objectGraph.isCreated(requestedService)) {
-            return objectGraph.getCreatedSingleton(requestedService);
+        TypeOfService typeOfService = mObjectGraph.getTypeOfService(requestedService);
+        if (typeOfService == TypeOfService.SINGLETON && mObjectGraph.isCreated(requestedService)) {
+            return mObjectGraph.getCreatedSingleton(requestedService);
         }
         Constructor<?> constructor = node.getConstructor();
         if (node.getParameters().size() == 0) {
             Object result = constructor.newInstance();
-            if (registeredService.getTypeOfService() == TypeOfService.SINGLETON) {
-                objectGraph.addCreatedSingleton(requestedService, result);
+            if (typeOfService == TypeOfService.SINGLETON) {
+                mObjectGraph.addCreatedSingleton(requestedService, result);
             }
             return result;
         }
@@ -79,14 +81,14 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
             constructorParameters.add(getObject(parameter));
         }
         Object result = constructor.newInstance(constructorParameters.toArray());
-        if (registeredService.getTypeOfService() == TypeOfService.SINGLETON) {
-            objectGraph.addCreatedSingleton(requestedService, result);
+        if (typeOfService == TypeOfService.SINGLETON) {
+            mObjectGraph.addCreatedSingleton(requestedService, result);
         }
         return result;
     }
 
     private void checkForInjectConstructors(Class<?> service) throws Exception {
-        Constructor<?>[] constructors = service.getConstructors();
+        Constructor<?>[] constructors = service.getDeclaredConstructors();
         int numberOfInjectConstructors = 0;
         for (Constructor<?> constructor : constructors) {
             if (constructor.isAnnotationPresent(Inject.class)) {
@@ -103,45 +105,47 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
     }
 
     private void registerDataAboutService(String name, Class<?> service) {
-        if (objectGraph.isRegistered(service.getTypeName())) {
+        if (mObjectGraph.isRegistered(service.getTypeName())) {
             return;
         }
-        ServiceRegistrationImpl registeredService;
         if (service.isAnnotationPresent(Singleton.class)) {
-            registeredService = new ServiceRegistrationImpl(service, TypeOfService.SINGLETON);
+            mObjectGraph.addRegisteredService(name, TypeOfService.SINGLETON);
         } else {
-            registeredService = new ServiceRegistrationImpl(service, TypeOfService.TRANSIENT);
+            mObjectGraph.addRegisteredService(name, TypeOfService.NOTSINGLETON);
         }
-        objectGraph.addRegisteredService(name, registeredService);
     }
 
     private Constructor<?> getSuitableConstructor(Class<?> service) throws Exception {
-        Constructor<?>[] constructors = service.getConstructors();
+        Constructor<?>[] constructors = service.getDeclaredConstructors();
         for (Constructor<?> constructor : constructors) {
             if (Modifier.isPublic(constructor.getModifiers()) && constructor.isAnnotationPresent(Inject.class)) {
                 return constructor;
             }
         }
-        throw new Exception("No public constructor found for service " + service.getTypeName() + ".");
+        throw new Exception("No public inject constructor found for service " + service.getTypeName() + ".");
     }
 
-    private ObjectNode getObjectNodeForRegistration(Class<?> service, String name, HashSet<String> dependencies)
+    private ObjectNode getObjectNodeForRegistration(Class<?> service, String name, HashSet<String> dependencies, String parentNodeName)
             throws Exception {
         if (dependencies.contains(name)) {
-            throw new Exception("Circular dependency during registration occurred");
+            throw new Exception("Circular dependency during registration occurred.");
         }
         checkForInjectConstructors(service);
         Constructor<?> constructor = getSuitableConstructor(service);
         registerDataAboutService(name, service);
         ArrayList<ObjectNode> parametersOfNode = new ArrayList<>();
         for (Parameter parameter : constructor.getParameters()) {
+            if (name.equals(parentNodeName)) {
+                dependencies.clear();
+            }
+            dependencies.add(name);
             parametersOfNode.add(getObjectNodeForRegistration(parameter.getType(), parameter.getType().getTypeName(),
-                    dependencies));
+                    dependencies, parentNodeName));
         }
         return new ObjectNodeImpl(name, parametersOfNode, constructor);
     }
 
 
-    private final ObjectGraphImpl objectGraph = new ObjectGraphImpl();
-    private boolean isRegistrationComplete = false;
+    private final ObjectGraphImpl mObjectGraph = new ObjectGraphImpl();
+    private boolean mIsRegistrationComplete = false;
 }

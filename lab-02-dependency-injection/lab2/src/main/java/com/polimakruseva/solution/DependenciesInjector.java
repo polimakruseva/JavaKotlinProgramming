@@ -1,10 +1,8 @@
 package com.polimakruseva.solution;
 
-import java.lang.reflect.InvocationTargetException;
-
 enum TypeOfService {
     SINGLETON,
-    TRANSIENT
+    NOTSINGLETON
 }
 
 public interface DependenciesInjector {
