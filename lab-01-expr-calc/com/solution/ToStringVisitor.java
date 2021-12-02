@@ -1,12 +1,12 @@
 package com.solution;
 
-public class ToStringVisitor implements ExpressionVisitor {
+public class ToStringVisitor implements ExpressionVisitor<String> {
     private ToStringVisitor() {}
 
-    public static final Object INSTANCE = new ToStringVisitor();
+    public static final ExpressionVisitor<String> INSTANCE = new ToStringVisitor();
 
     @Override
-    public Object visitBinaryExpression(BinaryExpression expr) throws ExpressionParseException {
+    public String visitBinaryExpression(BinaryExpression expr) throws ExpressionParseException {
         switch (expr.getOperation()) {
             case ADD: {
                 return expr.getLeft().accept(this) + " + " + expr.getRight().accept(this);
@@ -28,17 +28,17 @@ public class ToStringVisitor implements ExpressionVisitor {
     }
 
     @Override
-    public Object visitLiteral(Literal expr) {
+    public String visitLiteral(Literal expr) {
         return expr.getUnarySigns() + expr.getLiteral();
     }
 
     @Override
-    public Object visitParenthesisExpression(ParenthesisExpression expr) throws ExpressionParseException {
+    public String visitParenthesisExpression(ParenthesisExpression expr) throws ExpressionParseException {
         return expr.getUnarySigns() + "(" + expr.getExpr().accept(this) + ")";
     }
 
     @Override
-    public Object visitVariable(Variable expr) {
+    public String visitVariable(Variable expr) {
         return expr.getUnarySigns() + expr.getVariable();
     }
 }
