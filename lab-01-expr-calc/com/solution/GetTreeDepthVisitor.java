@@ -1,27 +1,27 @@
 package com.solution;
 
-public class GetTreeDepthVisitor implements ExpressionVisitor {
+public class GetTreeDepthVisitor implements ExpressionVisitor<Integer> {
     private GetTreeDepthVisitor() {}
 
-    public static final ExpressionVisitor INSTANCE = new GetTreeDepthVisitor();
+    public static final ExpressionVisitor<Integer> INSTANCE = new GetTreeDepthVisitor();
 
     @Override
-    public Object visitBinaryExpression(BinaryExpression expr) throws ExpressionParseException {
-        return 1 + Math.max((Integer) expr.getLeft().accept(this), (Integer) expr.getRight().accept(this)) ;
+    public Integer visitBinaryExpression(BinaryExpression expr) throws ExpressionParseException {
+        return 1 + Math.max(expr.getLeft().accept(this), expr.getRight().accept(this)) ;
     }
 
     @Override
-    public Object visitLiteral(Literal expr) {
+    public Integer visitLiteral(Literal expr) {
         return 1;
     }
 
     @Override
-    public Object visitParenthesisExpression(ParenthesisExpression expr) throws ExpressionParseException {
-        return 1 + (Integer) expr.getExpr().accept(this);
+    public Integer visitParenthesisExpression(ParenthesisExpression expr) throws ExpressionParseException {
+        return 1 + expr.getExpr().accept(this);
     }
 
     @Override
-    public Object visitVariable(Variable expr) {
+    public Integer visitVariable(Variable expr) {
         return 1;
     }
 }

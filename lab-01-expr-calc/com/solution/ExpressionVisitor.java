@@ -1,8 +1,8 @@
 package com.solution;
 
-public interface ExpressionVisitor {
-    Object visitBinaryExpression(BinaryExpression expr) throws ExpressionParseException;
-    Object visitLiteral(Literal expr) throws ExpressionParseException;
-    Object visitParenthesisExpression(ParenthesisExpression expr) throws ExpressionParseException;
-    Object visitVariable(Variable expr) throws ExpressionParseException;
+public interface ExpressionVisitor<T> {
+    T visitBinaryExpression(BinaryExpression expr) throws ExpressionParseException;
+    T visitLiteral(Literal expr) throws ExpressionParseException;
+    T visitParenthesisExpression(ParenthesisExpression expr) throws ExpressionParseException;
+    T visitVariable(Variable expr) throws ExpressionParseException;
 }

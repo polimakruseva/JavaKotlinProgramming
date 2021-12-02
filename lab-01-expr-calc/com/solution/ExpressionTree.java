@@ -30,22 +30,22 @@ public class ExpressionTree {
     }
 
     String getTreeRepresentation() throws ExpressionParseException {
-        return (String) mTreeTop.accept(DebugRepresentationExpressionVisitor.INSTANCE);
+        return mTreeTop.accept(DebugRepresentationExpressionVisitor.INSTANCE);
     }
 
     double computeResult() throws ExpressionParseException {
-        HashMap<String, String> res = (HashMap<String, String>) mTreeTop.accept(new InitializeVariablesVisitor());
-        return (double) mTreeTop.accept(new ComputeExpressionVisitor(res));
+        HashMap<String, String> res = mTreeTop.accept(new InitializeVariablesVisitor());
+        return mTreeTop.accept(new ComputeExpressionVisitor(res));
     }
 
     int getTreeDepth() throws ExpressionParseException {
-        return (Integer) mTreeTop.accept(GetTreeDepthVisitor.INSTANCE);
+        return mTreeTop.accept(GetTreeDepthVisitor.INSTANCE);
     }
 
     @Override
     public String toString() {
         try {
-            return (String) mTreeTop.accept((ExpressionVisitor) ToStringVisitor.INSTANCE);
+            return mTreeTop.accept(ToStringVisitor.INSTANCE);
         } catch (ExpressionParseException e) {
             e.printStackTrace();
         }

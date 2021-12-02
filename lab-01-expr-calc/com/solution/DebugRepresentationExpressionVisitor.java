@@ -1,12 +1,12 @@
 package com.solution;
 
-public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
+public class DebugRepresentationExpressionVisitor implements ExpressionVisitor<String> {
     private DebugRepresentationExpressionVisitor() {}
 
-    public static final ExpressionVisitor INSTANCE = new DebugRepresentationExpressionVisitor();
+    public static final ExpressionVisitor<String> INSTANCE = new DebugRepresentationExpressionVisitor();
 
     @Override
-    public Object visitBinaryExpression(BinaryExpression expr) throws ExpressionParseException {
+    public String visitBinaryExpression(BinaryExpression expr) throws ExpressionParseException {
         String result = "";
         BinOpKind op = expr.getOperation();
         switch(op) {
@@ -36,19 +36,19 @@ public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
     }
 
     @Override
-    public Object visitLiteral(Literal expr) {
+    public String visitLiteral(Literal expr) {
         return getStringWithUnarySigns(expr) + "'" + expr.getLiteral() + "'";
     }
 
     @Override
-    public Object visitParenthesisExpression(ParenthesisExpression expr) throws ExpressionParseException {
+    public String visitParenthesisExpression(ParenthesisExpression expr) throws ExpressionParseException {
         String result = "";
         result += getStringWithUnarySigns(expr);
         return result + "paren-expr(" + expr.getExpr().accept(this) + ")";
     }
 
     @Override
-    public Object visitVariable(Variable expr) {
+    public String visitVariable(Variable expr) {
         return getStringWithUnarySigns(expr) + "var[" + expr.getVariable() + "]";
     }
 

@@ -6,5 +6,5 @@ public interface Expression {
     void setUnaryPlus();
     String getUnarySigns();
 
-    Object accept(ExpressionVisitor visitor) throws ExpressionParseException;
+    <T> T accept(ExpressionVisitor<T> visitor) throws ExpressionParseException;
 }
