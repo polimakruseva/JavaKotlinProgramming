@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+//
+group 'com.polimakruseva.calculator'
+version 'unspecified'
+
+repositories {
+    mavenCentral()
+}
+
+//application {
+//    mainClass = 'src/com.calculator/Main.java'
+//}
