@@ -24,7 +24,9 @@ class Calculator : ActionListener, KeyListener, MouseListener {
                         }
                     } else if (e.keyChar == '=') {
                         solve()
-                        variables.isFocusable = false
+                        if (selectedIndex == -1) {
+                            variables.isFocusable = false
+                        }
                     } else {
                         dataModel.set(selectedIndex, dataModel.get(selectedIndex) + e.keyChar)
                     }
@@ -206,6 +208,7 @@ class Calculator : ActionListener, KeyListener, MouseListener {
                     wasSolvedOrException = false
                 }
                 if (currentExpression.length == 1) {
+                    wasSolvedOrException = true
                     clearPreviousResult()
                 }
                 currentExpression = currentExpression.dropLast(1)
@@ -242,7 +245,9 @@ class Calculator : ActionListener, KeyListener, MouseListener {
             }
             "=" -> {
                 solve()
-                variables.isFocusable = false
+                if (selectedIndex == -1) {
+                    variables.isFocusable = false
+                }
             }
             "AC" -> {
                 wasSolvedOrException = true
@@ -439,6 +444,7 @@ class Calculator : ActionListener, KeyListener, MouseListener {
                     wasSolvedOrException= false
                 }
                 if (currentExpression.length == 1) {
+                    wasSolvedOrException = true
                     clearPreviousResult()
                 }
                 currentExpression = currentExpression.dropLast(1)
