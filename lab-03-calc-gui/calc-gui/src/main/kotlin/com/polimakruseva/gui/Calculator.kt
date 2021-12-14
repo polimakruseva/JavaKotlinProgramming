@@ -8,7 +8,6 @@ import java.awt.event.*
 import javax.swing.*
 import kotlin.collections.HashMap
 
-
 class Calculator : ActionListener, KeyListener, MouseListener {
     private inner class ListKeyListener : KeyListener {
         override fun keyTyped(e: KeyEvent?) {}
@@ -16,7 +15,14 @@ class Calculator : ActionListener, KeyListener, MouseListener {
         override fun keyPressed(e: KeyEvent?) {
             if (selectedIndex != -1) {
                 if (e != null) {
-                    if (e.keyChar == '=') {
+                    if (e.keyCode == KeyEvent.VK_BACK_SPACE) {
+                        var selected = dataModel.get(selectedIndex)
+                        if (selected[selected.length - 1] != ' ') {
+                            selected = selected.dropLast(1)
+                            dataModel.set(selectedIndex, selected)
+                            variables.validate()
+                        }
+                    } else if (e.keyChar == '=') {
                         solve()
                         variables.isFocusable = false
                     } else {
@@ -96,10 +102,10 @@ class Calculator : ActionListener, KeyListener, MouseListener {
 
     private var wasSolvedOrException = false
     private var shiftPressed = false
-    private var isWaitingForVariables = false
     private var selectedIndex = -1
 
     private val mapWithVariables = HashMap<String, String>()
+    private var currentListOfVariables = ArrayList<String>()
 
     init {
         createButtonsAndPanels()
@@ -169,7 +175,15 @@ class Calculator : ActionListener, KeyListener, MouseListener {
             if (characters.findAnyOf(listOf(pushedButton)) != null) {
                 clearPreviousResult()
             }
+            if (selectedIndex == -1) {
+                buttonsActionForExpression(pushedButton)
+            } else {
+                buttonsActionForInitialization(pushedButton)
+            }
         }
+    }
+
+    private fun buttonsActionForExpression(pushedButton : String) {
         when (pushedButton) {
             "0" -> currentExpression += "0"
             "1" -> currentExpression += "1"
@@ -188,6 +202,9 @@ class Calculator : ActionListener, KeyListener, MouseListener {
             "(" -> currentExpression += "("
             ")" -> currentExpression += ")"
             "←" -> {
+                if (wasSolvedOrException) {
+                    wasSolvedOrException = false
+                }
                 if (currentExpression.length == 1) {
                     clearPreviousResult()
                 }
@@ -195,57 +212,112 @@ class Calculator : ActionListener, KeyListener, MouseListener {
             }
             "=" -> solve()
             "AC" -> {
+                wasSolvedOrException = true
                 clearPreviousResult()
             }
             "." -> currentExpression += "."
         }
-        println(currentExpression.length)
         enterExpression.text = currentExpression
     }
 
-    private fun solve() {
-        if (isWaitingForVariables) {
-            updateMapWithVariables()
-            val result = expressionTree.solveFromCalculator(mapWithVariables, dataModel.size())
-            if (expressionTree.throwsException() && expressionTree.exceptionText == "Initialize variables") {
-                resultText.text = expressionTree.exceptionText
-            } else if (expressionTree.throwsException()) {
-                isWaitingForVariables = false
-                wasSolvedOrException = true
-                resultText.text = expressionTree.exceptionText
-            } else {
-                isWaitingForVariables = false
-                resultText.text = "\n" + result.toString()
-                wasSolvedOrException = true
-                addAdditionalInformation()
-            }
-        } else {
-            expressionTree.loadNewExpression(currentExpression)
-            if (expressionTree.throwsException()) {
-                resultText.text = expressionTree.exceptionText
-            } else {
-                val listOfVariables = expressionTree.variables
-                createListOfVariables()
-                if (listOfVariables.isNotEmpty()) {
-                    isWaitingForVariables = true
-                    resultText.text = "Initialize variables"
-                    if (inArea) {
-                        variables.isFocusable = true
-                    }
-                } else {
-                    val result = expressionTree.solveFromCalculator(mapWithVariables, dataModel.size())
-                    if (expressionTree.throwsException()) {
-                        resultText.text = expressionTree.exceptionText
-                    } else {
-                        resultText.text = "\n" + result.toString()
-                        addAdditionalInformation()
-                    }
+    private fun buttonsActionForInitialization(pushedButton: String) {
+        when (pushedButton) {
+            "0" -> dataModel.set(selectedIndex, dataModel.get(selectedIndex) + "0")
+            "1" -> dataModel.set(selectedIndex, dataModel.get(selectedIndex) + "1")
+            "2" -> dataModel.set(selectedIndex, dataModel.get(selectedIndex) + "2")
+            "3" -> dataModel.set(selectedIndex, dataModel.get(selectedIndex) + "3")
+            "4" -> dataModel.set(selectedIndex, dataModel.get(selectedIndex) + "4")
+            "5" -> dataModel.set(selectedIndex, dataModel.get(selectedIndex) + "5")
+            "6" -> dataModel.set(selectedIndex, dataModel.get(selectedIndex) + "6")
+            "7" -> dataModel.set(selectedIndex, dataModel.get(selectedIndex) + "7")
+            "8" -> dataModel.set(selectedIndex, dataModel.get(selectedIndex) + "8")
+            "9" -> dataModel.set(selectedIndex, dataModel.get(selectedIndex) + "9")
+            "←" -> {
+                var selected = dataModel.get(selectedIndex)
+                if (selected[selected.length - 1] != ' ') {
+                    selected = selected.dropLast(1)
+                    dataModel.set(selectedIndex, selected)
+                    variables.validate()
                 }
             }
-            if (!isWaitingForVariables) {
+            "=" -> {
+                solve()
+                variables.isFocusable = false
+            }
+            "AC" -> {
                 wasSolvedOrException = true
+                clearPreviousResult()
+                variables.isFocusable = false
+            }
+            "." -> dataModel.set(selectedIndex, dataModel.get(selectedIndex) + ".")
+        }
+    }
+
+    private fun solve() {
+        if (!throwsExceptionWhenLoading()) {
+            if (hasVariables()) {
+                updateMapWithVariables()
+            }
+            solveEnteredExpression()
+        }
+    }
+
+    private fun throwsExceptionWhenLoading() : Boolean {
+        expressionTree.loadNewExpression(currentExpression)
+        if (expressionTree.throwsException()) {
+            resultText.text = expressionTree.exceptionText
+            return true
+        }
+        return false
+    }
+
+    private fun solveEnteredExpression() {
+        val result = expressionTree.solveFromCalculator(mapWithVariables, dataModel.size())
+        wasSolvedOrException = true
+        if (expressionTree.throwsException()) {
+            resultText.text = expressionTree.exceptionText
+            if (expressionTree.exceptionText == "Initialize variables!") {
+                wasSolvedOrException = false
+
+            }
+            variables.clearSelection()
+            selectedIndex = -1
+        } else {
+            resultText.text = "\n" + result.toString()
+            addAdditionalInformation()
+        }
+    }
+
+    private fun hasVariables() : Boolean {
+        val listOfVariables = expressionTree.variables
+        if (listOfVariables.size == 0) {
+            return false
+        }
+        updateVariablesList(listOfVariables)
+        return true
+    }
+
+    private fun updateVariablesList(listOfVariables : ArrayList<String>) {
+        if (listOfVariables.size != currentListOfVariables.size) {
+            replaceVariablesInJList(listOfVariables)
+        } else {
+            for (i in 0 until listOfVariables.size) {
+                if (listOfVariables[i] != currentListOfVariables[i]) {
+                    replaceVariablesInJList(listOfVariables)
+                    break
+                }
             }
         }
+    }
+
+    private fun replaceVariablesInJList(listOfVariables : ArrayList<String>) {
+        mapWithVariables.clear()
+        dataModel.clear()
+        for (variable in listOfVariables) {
+            val index = dataModel.size()
+            dataModel.add(index, "$variable = ")
+        }
+        currentListOfVariables = listOfVariables
     }
 
     private fun addAdditionalInformation() {
@@ -253,22 +325,16 @@ class Calculator : ActionListener, KeyListener, MouseListener {
         debugRepresentation.text = "Debug representation: \n\n" + expressionTree.treeRepresentation
     }
 
-    private fun createListOfVariables() {
-        val variablesInExpression = expressionTree.variables
-        mapWithVariables.clear()
-        for (variable in variablesInExpression) {
-            val index = dataModel.size()
-            dataModel.add(index, "$variable = ")
-        }
-    }
-
     private fun updateMapWithVariables() {
         for (i in 0 until dataModel.size()) {
             val currentElement = dataModel.getElementAt(i)
             val index = currentElement.indexOf('=')
+            val key = currentElement.substring(0, currentElement.indexOf(' '))
             if (index != currentElement.length - 2) {
-                mapWithVariables[currentElement.substring(0, currentElement.indexOf(' '))] =
+                mapWithVariables[key] =
                     currentElement.substring(index + 2)
+            } else if (index == currentElement.length - 2 && mapWithVariables.containsKey(key)) {
+                mapWithVariables.remove(key)
             }
         }
     }
@@ -283,7 +349,9 @@ class Calculator : ActionListener, KeyListener, MouseListener {
             debugRepresentation.text = ""
             dataModel.clear()
             variables.clearSelection()
+            selectedIndex = -1
             mapWithVariables.clear()
+            currentListOfVariables.clear()
         }
     }
 
@@ -296,9 +364,6 @@ class Calculator : ActionListener, KeyListener, MouseListener {
                 clearPreviousResult()
                 currentExpression += e.keyChar
             }
-        }
-        if (e != null) {
-            println(e.keyChar)
         }
         when(e?.keyCode) {
             KeyEvent.VK_1 -> {
@@ -370,6 +435,9 @@ class Calculator : ActionListener, KeyListener, MouseListener {
                 currentExpression += "0"
             }
             KeyEvent.VK_BACK_SPACE -> {
+                if (wasSolvedOrException) {
+                    wasSolvedOrException= false
+                }
                 if (currentExpression.length == 1) {
                     clearPreviousResult()
                 }
@@ -451,7 +519,15 @@ class Calculator : ActionListener, KeyListener, MouseListener {
     override fun mouseClicked(e: MouseEvent?) {
         if (e != null) {
             if (e.clickCount == 1) {
-                selectedIndex = variables.selectedIndex
+                if (selectedIndex == variables.selectedIndex) {
+                    selectedIndex = -1
+                    variables.clearSelection()
+                    variables.isFocusable = false
+                } else {
+                    selectedIndex = variables.selectedIndex
+                    variables.isFocusable = true
+                    variables.grabFocus()
+                }
             }
         }
     }
@@ -460,20 +536,11 @@ class Calculator : ActionListener, KeyListener, MouseListener {
 
     override fun mouseReleased(e: MouseEvent?) {}
 
-    override fun mouseEntered(e: MouseEvent?) {
-        inArea = true
-        variables.isFocusable = true
-    }
+    override fun mouseEntered(e: MouseEvent?) {}
 
-    override fun mouseExited(e: MouseEvent?) {
-        inArea = false
-        selectedIndex = -1
-        variables.isFocusable = false
-    }
-
-    private var inArea = false
+    override fun mouseExited(e: MouseEvent?) {}
 }
 
 fun main() {
-    val calculator = Calculator()
+    Calculator()
 }
