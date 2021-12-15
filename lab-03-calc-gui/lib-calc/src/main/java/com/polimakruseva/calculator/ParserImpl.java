@@ -15,7 +15,7 @@ public class ParserImpl implements Parser {
         mInput = input;
         mCurrentIndex = 0;
         getToken();
-        if (mTokenType == TokenType.DELIMITER && "*/".contains(mToken)) {
+        if (mTokenType == TokenType.DELIMITER && "*/)".contains(mToken)) {
             mHandler.handleException(TypeOfException.SYNTAXERROR);
         }
 

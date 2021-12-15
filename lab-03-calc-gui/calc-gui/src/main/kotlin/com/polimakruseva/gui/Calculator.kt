@@ -24,9 +24,6 @@ class Calculator : ActionListener, KeyListener, MouseListener {
                         }
                     } else if (e.keyChar == '=') {
                         solve()
-                        if (selectedIndex == -1) {
-                            variables.isFocusable = false
-                        }
                     } else {
                         dataModel.set(selectedIndex, dataModel.get(selectedIndex) + e.keyChar)
                     }
@@ -61,7 +58,7 @@ class Calculator : ActionListener, KeyListener, MouseListener {
         font = Font("", Font.BOLD, 14)
     }
     private val namesOfDigitsButtons = listOf("7", "8", "9", "4", "5", "6", "1", "2", "3", "0", "=", ".")
-    private val namesOfSymbolsButtons = listOf("+", "-", "x", "/", "(", ")", "AC", "←")
+    private val namesOfSymbolsButtons = listOf("+", "-", "*", "/", "(", ")", "AC", "←")
     private val digitButtons : MutableList<JButton> = mutableListOf()
     private val symbolButtons : MutableList<JButton> = mutableListOf()
 
@@ -240,19 +237,14 @@ class Calculator : ActionListener, KeyListener, MouseListener {
                 if (selected[selected.length - 1] != ' ') {
                     selected = selected.dropLast(1)
                     dataModel.set(selectedIndex, selected)
-                    variables.validate()
                 }
             }
             "=" -> {
                 solve()
-                if (selectedIndex == -1) {
-                    variables.isFocusable = false
-                }
             }
             "AC" -> {
                 wasSolvedOrException = true
                 clearPreviousResult()
-                variables.isFocusable = false
             }
             "." -> dataModel.set(selectedIndex, dataModel.get(selectedIndex) + ".")
         }
@@ -281,10 +273,7 @@ class Calculator : ActionListener, KeyListener, MouseListener {
         wasSolvedOrException = true
         if (expressionTree.throwsException()) {
             resultText.text = expressionTree.exceptionText
-            if (expressionTree.exceptionText == "Initialize variables!") {
-                wasSolvedOrException = false
-
-            }
+            wasSolvedOrException = false
             variables.clearSelection()
             selectedIndex = -1
         } else {
@@ -296,6 +285,9 @@ class Calculator : ActionListener, KeyListener, MouseListener {
     private fun hasVariables() : Boolean {
         val listOfVariables = expressionTree.variables
         if (listOfVariables.size == 0) {
+            listOfVariables.clear()
+            dataModel.clear()
+            mapWithVariables.clear()
             return false
         }
         updateVariablesList(listOfVariables)
@@ -357,6 +349,7 @@ class Calculator : ActionListener, KeyListener, MouseListener {
             selectedIndex = -1
             mapWithVariables.clear()
             currentListOfVariables.clear()
+            variables.isFocusable = false
         }
     }
 
