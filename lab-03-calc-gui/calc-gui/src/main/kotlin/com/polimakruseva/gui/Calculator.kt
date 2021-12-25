@@ -364,69 +364,37 @@ class Calculator : ActionListener, KeyListener, MouseListener {
             }
         }
         when(e?.keyCode) {
-            KeyEvent.VK_1 -> {
+            KeyEvent.VK_1, KeyEvent.VK_NUMPAD1 -> {
                 clearPreviousResult()
                 currentExpression += "1"
             }
-            KeyEvent.VK_NUMPAD1 -> {
-                clearPreviousResult()
-                currentExpression += "1"
-            }
-            KeyEvent.VK_2 -> {
+            KeyEvent.VK_2, KeyEvent.VK_NUMPAD2 -> {
                 clearPreviousResult()
                 currentExpression += "2"
             }
-            KeyEvent.VK_NUMPAD2 -> {
-                clearPreviousResult()
-                currentExpression += "2"
-            }
-            KeyEvent.VK_3 -> {
+            KeyEvent.VK_3, KeyEvent.VK_NUMPAD3 -> {
                 clearPreviousResult()
                 currentExpression += "3"
             }
-            KeyEvent.VK_NUMPAD3 -> {
-                clearPreviousResult()
-                currentExpression += "3"
-            }
-            KeyEvent.VK_4 -> {
+            KeyEvent.VK_4, KeyEvent.VK_NUMPAD4 -> {
                 clearPreviousResult()
                 currentExpression += "4"
             }
-            KeyEvent.VK_NUMPAD4 -> {
-                clearPreviousResult()
-                currentExpression += "4"
-            }
-            KeyEvent.VK_5 -> {
+            KeyEvent.VK_5, KeyEvent.VK_NUMPAD5 -> {
                 clearPreviousResult()
                 currentExpression += "5"
             }
-            KeyEvent.VK_NUMPAD5 -> {
-                clearPreviousResult()
-                currentExpression += "5"
-            }
-            KeyEvent.VK_6 -> {
+            KeyEvent.VK_6, KeyEvent.VK_NUMPAD6 -> {
                 clearPreviousResult()
                 currentExpression += "6"
             }
-            KeyEvent.VK_NUMPAD6 -> {
-                clearPreviousResult()
-                currentExpression += "6"
-            }
-            KeyEvent.VK_7 -> {
+            KeyEvent.VK_7, KeyEvent.VK_NUMPAD7 -> {
                 clearPreviousResult()
                 currentExpression += "7"
             }
-            KeyEvent.VK_NUMPAD7 -> {
-                clearPreviousResult()
-                currentExpression += "7"
-            }
-            KeyEvent.VK_NUMPAD8 -> {
+            KeyEvent.VK_NUMPAD8, KeyEvent.VK_NUMPAD9 -> {
                 clearPreviousResult()
                 currentExpression += "8"
-            }
-            KeyEvent.VK_NUMPAD9 -> {
-                clearPreviousResult()
-                currentExpression += "9"
             }
             KeyEvent.VK_NUMPAD0 -> {
                 clearPreviousResult()
